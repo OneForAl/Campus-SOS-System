@@ -56,7 +56,8 @@
         // 2. The Polling Function (Runs every 2 seconds)
         async function fetchAlerts() {
             try {
-                const response = await fetch('/api/get_alerts');
+                // The "?t=" part forces the browser to get fresh data from the database
+                const response = await fetch('/api/get_alerts?t=' + Date.now());
                 const alerts = await response.json();
 
                 // If we have new data
