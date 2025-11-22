@@ -16,7 +16,7 @@
 </head>
 <body class="bg-gray-100 h-screen flex flex-col items-center justify-center relative">
 
-    {% if login_mode %}
+    <!--{% if login_mode %}-->
     <!-- Login Form -->
     <div class="bg-white p-8 rounded-xl shadow-2xl w-80">
         <h2 class="text-xl font-bold mb-4 text-gray-800">Security Access</h2>
@@ -26,7 +26,7 @@
         </form>
         <a href="/" class="block text-center mt-4 text-sm text-gray-400">Back to SOS</a>
     </div>
-    {% else %}
+    <!--{% else %}-->
     
     <!-- Main SOS Button -->
     <div class="text-center space-y-8">
@@ -41,7 +41,7 @@
     </div>
 
     <a href="/login" class="absolute bottom-4 right-4 text-gray-400 hover:text-gray-600 text-sm">Security Login</a>
-    {% endif %}
+    <!--{% endif %}-->
 
     <script>
         function sendAlert() {
