@@ -1,0 +1,2 @@
+- App: 2 types of account -> student/faculty, personnel
+- Website: Admin, student/faculty
