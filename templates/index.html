@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus SOS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .btn-pulse { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col items-center justify-center relative">
+
+    {% if login_mode %}
+    <!-- Login Form -->
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-80">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">Security Access</h2>
+        <form action="/login" method="POST">
+            <input type="password" name="password" placeholder="Enter Admin Password" class="w-full p-3 border rounded mb-4 bg-gray-50">
+            <button class="w-full bg-blue-600 text-white py-3 rounded font-bold hover:bg-blue-700">Login</button>
+        </form>
+        <a href="/" class="block text-center mt-4 text-sm text-gray-400">Back to SOS</a>
+    </div>
+    {% else %}
+    
+    <!-- Main SOS Button -->
+    <div class="text-center space-y-8">
+        <h1 class="text-3xl font-bold text-gray-700">EMERGENCY ALERT</h1>
+        
+        <button id="sosBtn" onclick="sendAlert()" class="btn-pulse w-64 h-64 rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-2xl active:scale-95 transition-transform">
+            <span class="text-6xl font-black">SOS</span>
+            <span class="text-sm uppercase tracking-widest mt-2 font-semibold">Click for Help</span>
+        </button>
+
+        <div id="status" class="text-gray-500 font-medium h-6">Ready</div>
+    </div>
+
+    <a href="/login" class="absolute bottom-4 right-4 text-gray-400 hover:text-gray-600 text-sm">Security Login</a>
+    {% endif %}
+
+    <script>
+        function sendAlert() {
+            const status = document.getElementById('status');
+            const btn = document.getElementById('sosBtn');
+
+            if (!navigator.geolocation) {
+                status.innerText = "Geolocation not supported.";
+                return;
+            }
+
+            status.innerText = "Acquiring GPS...";
+            status.className = "text-yellow-600 font-bold animate-pulse";
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    status.innerText = "Sending Data...";
+                    
+                    const payload = {
+                        lat: position.coords.latitude,
+                        long: position.coords.longitude,
+                        student_id: "WEB-USER-" + Math.floor(Math.random() * 1000),
+                        source: "WEB_APP"
+                    };
+
+                    fetch('/api/alert', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        status.innerText = "ALERT SENT! STAY CALM.";
+                        status.className = "text-green-600 font-bold";
+                        btn.classList.remove('btn-pulse');
+                        btn.classList.add('bg-green-600');
+                    })
+                    .catch(err => {
+                        status.innerText = "Connection Failed.";
+                        status.className = "text-red-600 font-bold";
+                    });
+                },
+                (error) => {
+                    status.innerText = "Location Access Denied.";
+                    status.className = "text-red-600 font-bold";
+                }
+            );
+        }
+    </script>
+</body>
+</html>
