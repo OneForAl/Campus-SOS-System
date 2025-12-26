@@ -20,7 +20,7 @@ oauth = OAuth(app)
 google = oauth.register(
     name='google',
     client_id=os.environ.get('GOOGLE_CLIENT_ID', '962105562612-n82dut3lbjusnlpphfncqui5cotlp4cf.apps.googleusercontent.com'),
-    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET', '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'),
+    client_secret=os.environ.get('GOOGLE_CLIENT_SECRET', ''),
     # Add OIDC discovery so authlib can obtain jwks_uri automatically
     server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
     api_base_url='https://openidconnect.googleapis.com/v1/',
@@ -209,3 +209,4 @@ def get_alerts():
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=5000)
+
