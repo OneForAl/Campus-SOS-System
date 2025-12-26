@@ -16,8 +16,10 @@
 </head>
 <body class="bg-gray-100 h-screen flex flex-col items-center justify-center relative">
 
-    <!--{% if login_mode %}-->
-    <!-- Login Form -->
+    <body class="bg-gray-100 h-screen flex flex-col items-center justify-center relative">
+
+    {% if login_mode %}
+    <!-- Admin login form (unchanged) -->
     <div class="bg-white p-8 rounded-xl shadow-2xl w-80">
         <h2 class="text-xl font-bold mb-4 text-gray-800">Security Access</h2>
         <form action="/login" method="POST">
@@ -26,11 +28,34 @@
         </form>
         <a href="/" class="block text-center mt-4 text-sm text-gray-400">Back to SOS</a>
     </div>
-    <!--{% else %}-->
-    
-    <!-- Main SOS Button -->
+
+    {% elif not user %}
+    <!-- Student not logged in: show Google login button -->
+    <div class="bg-white p-8 rounded-xl shadow-2xl w-80 text-center space-y-4">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">Student Login</h2>
+        <p class="text-sm text-gray-500">Login with your institute Google ID (@nitdelhi.ac.in) to send SOS alerts.</p>
+        <a href="{{ url_for('student_login') }}"
+           class="w-full inline-flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded font-bold hover:bg-red-700">
+           <span>Continue with Google</span>
+        </a>
+        <a href="/login" class="block text-center mt-4 text-sm text-gray-400">Security/Admin Login</a>
+    </div>
+
+    {% else %}
+    <!-- Student is logged in: show SOS button (your existing UI) -->
     <div class="text-center space-y-8">
         <h1 class="text-3xl font-bold text-gray-700">EMERGENCY ALERT</h1>
+
+        <!-- NEW: emergency type dropdown -->
+        <div class="flex items-center justify-center space-x-3">
+            <label for="emergencyType" class="text-sm font-medium text-gray-600">Type:</label>
+            <select id="emergencyType" class="p-2 rounded border bg-white">
+                <option value="Medical">Medical</option>
+                <option value="Security">Security</option>
+                <option value="Admin presence required">Admin presence required</option>
+                <option value="Others" selected>Others</option>
+            </select>
+        </div>
         
         <button id="sosBtn" onclick="sendAlert()" class="btn-pulse w-64 h-64 rounded-full bg-red-600 text-white flex flex-col items-center justify-center shadow-2xl active:scale-95 transition-transform">
             <span class="text-6xl font-black">SOS</span>
@@ -38,15 +63,23 @@
         </button>
 
         <div id="status" class="text-gray-500 font-medium h-6">Ready</div>
+
+        <p class="text-sm text-gray-500 mt-4">
+            Logged in as {{ user.email }} |
+            <a href="{{ url_for('logout') }}" class="text-blue-600 hover:underline">Logout</a>
+        </p>
     </div>
 
     <a href="/login" class="absolute bottom-4 right-4 text-gray-400 hover:text-gray-600 text-sm">Security Login</a>
-    <!--{% endif %}-->
+
+    {% endif %}
+
 
     <script>
         function sendAlert() {
             const status = document.getElementById('status');
             const btn = document.getElementById('sosBtn');
+            const emergencyType = document.getElementById('emergencyType').value; // NEW
 
             if (!navigator.geolocation) {
                 status.innerText = "Geolocation not supported.";
@@ -63,8 +96,9 @@
                     const payload = {
                         lat: position.coords.latitude,
                         long: position.coords.longitude,
-                        student_id: "WEB-USER-" + Math.floor(Math.random() * 1000),
-                        source: "WEB_APP"
+                        student_id: "{{ user.email }}",   // use logged-in email
+                        source: "WEB_APP",
+                        emergency_type: emergencyType // NEW
                     };
 
                     fetch('/api/alert', {
